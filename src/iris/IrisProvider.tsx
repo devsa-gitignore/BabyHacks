@@ -10,6 +10,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { useAudio } from '@/audio';
+import { NAV_ITEMS } from '@/config';
 
 type Eye = { x: number; y: number; r: number };
 type Phase = 'idle' | 'swell' | 'dark' | 'open' | 'fade-in' | 'fade-out';
@@ -34,6 +35,19 @@ export function IrisProvider({ children }: { children: ReactNode }) {
   });
   const busy = useRef(false);
   const waiters = useRef<Array<{ path: string; res: () => void }>>([]);
+
+  // Load every page in the background up front. Without this the first visit to a page could take longer
+  // than the transition, the eyes reopened on the OLD page, and it looked like the click did nothing.
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      ['/home', ...NAV_ITEMS.map((n) => n.href)].forEach((h) => {
+        try {
+          router.prefetch(h);
+        } catch {}
+      });
+    }, 300);
+    return () => window.clearTimeout(id);
+  }, [router]);
 
   useEffect(() => {
     waiters.current = waiters.current.filter((w) => {
@@ -71,7 +85,7 @@ export function IrisProvider({ children }: { children: ReactNode }) {
           setPhase('fade-in');
           await sleep(220);
           router.push(href);
-          await waitFor(href, 2500);
+          await waitFor(href, 12000);
           setPhase('fade-out');
           await sleep(260);
           setPhase('idle');
@@ -107,7 +121,8 @@ export function IrisProvider({ children }: { children: ReactNode }) {
         await sleep(460);
         setPhase('dark'); // screen is fully black now, safe to swap the route underneath
         router.push(href);
-        await Promise.all([sleep(750), waitFor(href, 3000)]);
+        // stay dark until the new page is really there (only reopen early if it takes absurdly long)
+        await Promise.all([sleep(750), waitFor(href, 12000)]);
         play('chime');
         setPhase('open');
         await sleep(900);

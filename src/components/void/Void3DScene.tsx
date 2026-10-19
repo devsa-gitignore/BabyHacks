@@ -9,12 +9,12 @@ import * as THREE from 'three';
 import type { VoidState } from './VoidHero';
 
 export type Void3DHandle = { squish: () => void };
-type Look = { x: number; y: number };
+export type Look = { x: number; y: number };
 
 const LIME = new THREE.Color('#b8f23a');
 const SLEEPY = new THREE.Color('#7e74ad');
 
-function Model({ state, look, squishRef, night }: { state: VoidState; look: React.MutableRefObject<Look>; squishRef: React.MutableRefObject<number>; night: boolean }) {
+export function Model({ state, look, squishRef, night }: { state: VoidState; look: React.MutableRefObject<Look>; squishRef: React.MutableRefObject<number>; night: boolean }) {
   const root = useRef<THREE.Group>(null);
   const head = useRef<THREE.Group>(null);
   const tail = useRef<THREE.Group>(null);

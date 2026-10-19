@@ -16,7 +16,7 @@ function loadManifest(): Promise<string[]> {
   return manifestPromise;
 }
 
-const MAX_ANIMATING = 3;
+const MAX_ANIMATING = 20;
 let animating = 0;
 
 type DotLottie = ComponentType<{ src: string; loop?: boolean; autoplay?: boolean; style?: React.CSSProperties }>;
@@ -30,7 +30,8 @@ function loadPlayer(): Promise<DotLottie | null> {
   return playerPromise;
 }
 
-export function IconSlot({ name, size = 28, label }: { name: string; size?: number; label?: string }) {
+// zoom: scale the Lottie artwork inside its box (many files have wide empty margins); the fallback is unaffected.
+export function IconSlot({ name, size = 28, label, zoom }: { name: string; size?: number; label?: string; zoom?: number }) {
   const [Player, setPlayer] = useState<DotLottie | null>(null);
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export function IconSlot({ name, size = 28, label }: { name: string; size?: numb
       style={{ display: 'inline-block', width: size, height: size, lineHeight: 0 }}
     >
       {Player ? (
-        <Player src={`/lottie/${name}.lottie`} loop autoplay style={{ width: size, height: size }} />
+        <Player src={`/lottie/${name}.lottie`} loop autoplay style={{ width: size, height: size, transform: zoom ? `scale(${zoom})` : undefined }} />
       ) : (
         <FallbackIcon name={name} size={size} />
       )}

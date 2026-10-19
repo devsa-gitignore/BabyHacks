@@ -1,2 +1,2 @@
 export { AudioProvider, useAudio } from './AudioProvider';
-export type { SoundName } from './engine';
+export type { BedName, SoundName } from './engine';

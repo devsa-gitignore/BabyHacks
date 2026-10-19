@@ -1,11 +1,13 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { getEngine, type SoundName } from './engine';
+import { getEngine, type BedName, type SoundName } from './engine';
 
 type AudioApi = {
   play: (name: SoundName) => void;
   purr: (on: boolean) => void;
+  /** Story background loop per scene; null hands the site pad back. */
+  bed: (name: BedName | null) => void;
   muted: boolean;
   toggle: () => void;
   unlocked: boolean;
@@ -14,6 +16,7 @@ type AudioApi = {
 const AudioContextValue = createContext<AudioApi>({
   play: () => {},
   purr: () => {},
+  bed: () => {},
   muted: false,
   toggle: () => {},
   unlocked: false,
@@ -86,6 +89,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   const play = useCallback((name: SoundName) => engine.play(name), [engine]);
   const purr = useCallback((on: boolean) => (on ? engine.startPurr() : engine.stopPurr()), [engine]);
+  const bed = useCallback((name: BedName | null) => engine.setBed(name), [engine]);
 
   const toggle = useCallback(() => {
     const next = !engine.muted;
@@ -101,7 +105,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, [engine]);
 
-  const value = useMemo(() => ({ play, purr, muted, toggle, unlocked }), [play, purr, muted, toggle, unlocked]);
+  const value = useMemo(() => ({ play, purr, bed, muted, toggle, unlocked }), [play, purr, bed, muted, toggle, unlocked]);
   return <AudioContextValue.Provider value={value}>{children}</AudioContextValue.Provider>;
 }
 

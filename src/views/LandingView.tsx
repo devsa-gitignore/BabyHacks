@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAudio } from '@/audio';
-import { CloudSky } from '@/components/fx/CloudSky';
+import { CloudSky } from "@/components/fx/CloudSky";
+import { IconSlot } from '@/components/IconSlot';
+import { SnowBg } from '@/components/fx/SnowBg';
 import { Wordmark } from '@/components/fx/Wordmark';
 import { PixelButterfly, PixelHeart } from '@/components/void/Pixel';
 import { VoidHero, type VoidHandle, type VoidState } from '@/components/void/VoidHero';
 import { CAT_NAME, TAGLINE } from '@/config';
 import { useReducedMotion } from '@/hooks/useDevice';
 import { useIris } from '@/iris/IrisProvider';
+import { DarkRoom, RetroBits } from '@/views/landing/DarkRoom';
 
 type Heart = { id: number; dx: number };
 const sleepMs = 20_000;
@@ -84,7 +87,7 @@ export function LandingView() {
         }, 38);
         timers.current.push(iv);
       }, 1300);
-      later(() => setShowCta(true), 2800); // 2800: "Come in" drops in
+      later(() => setShowCta(true), 1100); // 1100: "Come in" drops in early, so a quick first click isn't spent on skipping the intro
       later(() => setHint(true), 3200); // 3200: hint + arrow
       later(() => wake(), 6000); // auto-wake if nobody moves
     };
@@ -276,8 +279,14 @@ export function LandingView() {
   return (
     <div ref={root} className="landing">
       <CloudSky speed={0.8} count={5} />
+      <div className="landing-snow">
+        <SnowBg glow />
+      </div>
 
       <Wordmark text={CAT_NAME} className="landing-word" />
+      <span className="landing-star" aria-hidden="true">
+        <IconSlot name="icon-star" size={56} />
+      </span>
 
       <p className="landing-tag font-note" aria-live="off">
         <span>{TAGLINE.slice(0, tagLen) || ' '}</span>
@@ -350,7 +359,7 @@ export function LandingView() {
 
       {hint && state !== 'purr' && (
         <p className="font-note absolute right-[6vw] top-[44dvh] z-[6] hidden -rotate-6 text-[1.9rem] md:block" aria-hidden="true">
-          psst, poke her
+          psst, poke him
           <svg className="note-arrow absolute -left-14 top-6" width="60" height="50" viewBox="0 0 60 50">
             <path d="M58 4C30 2 12 14 8 40M8 40L2 28M8 40L20 34" />
           </svg>
@@ -372,9 +381,11 @@ export function LandingView() {
           padding: '0 2.4rem',
         }}
       >
-        <span className="landing-cta-title" style={{ animation: showCta && !reduce ? 'wiggle-cta 5s 1s infinite' : undefined }}>Meet Void</span>
-        <span className="landing-cta-hint">explore her world · leave a wish</span>
+        <span style={{ animation: showCta && !reduce ? 'wiggle-cta 5s 1s infinite' : undefined }}>Come in</span>
       </button>
+
+      <RetroBits />
+      <DarkRoom />
 
       <div
         aria-hidden="true"

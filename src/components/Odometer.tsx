@@ -7,11 +7,12 @@ export function Odometer({ value, className = '' }: { value: number; className?:
     <span className={`odo ${className}`} aria-label={String(value)} role="text">
       {digits.map((d, i) => (
         <span key={digits.length - i} className="odo-col" aria-hidden="true">
-          <div style={{ transform: `translateY(-${Number(d) * 1.15}em)` }}>
+          {/* span, not div: the counter sits inside <p> tags, and a div there breaks hydration */}
+          <span style={{ transform: `translateY(-${Number(d) * 1.15}em)` }}>
             {Array.from({ length: 10 }, (_, n) => (
               <span key={n}>{n}</span>
             ))}
-          </div>
+          </span>
         </span>
       ))}
     </span>

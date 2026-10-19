@@ -2,22 +2,20 @@
 
 import { useRef } from 'react';
 import { useAudio } from '@/audio';
-import { useAbout } from '@/components/AboutDialog';
 import { Odometer } from '@/components/Odometer';
-import { AboutBadge, StarJar, StoryBook, ToyBlocks } from '@/components/void/CribObjects';
+import { StarJar, StoryBook, ToyBlocks } from '@/components/void/CribObjects';
 
-type Item = { key: string; label: string; href?: string; left: string; len: number; dur: number; delay: number };
+type Item = { key: string; label: string; href: string; soon?: boolean; left: string; len: number; dur: number; delay: number };
 const ITEMS: Item[] = [
-  { key: 'story', label: 'Story', href: '/story', left: '14%', len: 110, dur: 4.2, delay: -1 },
-  { key: 'wishes', label: 'Wishes', href: '/wishes', left: '38%', len: 68, dur: 5.1, delay: -2.4 },
-  { key: 'projects', label: 'Projects', href: '/projects', left: '62%', len: 104, dur: 4.6, delay: -0.8 },
-  { key: 'about', label: 'About', left: '86%', len: 82, dur: 4.9, delay: -1.7 },
+  { key: 'story', label: 'Story', href: '/story', left: '17%', len: 150, dur: 4.2, delay: -1 },
+  { key: 'wishes', label: 'Wishes', href: '/wishes', left: '50%', len: 70, dur: 5.1, delay: -2.4 },
+  { key: 'projects', label: 'Projects', href: '/projects', left: '83%', len: 110, dur: 4.7, delay: -0.3 },
 ];
 
 export function CribObjects({ count, onGo }: { count: number; onGo: (href: string) => void }) {
   const { play } = useAudio();
-  const { open: openAbout } = useAbout();
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
+  const going = useRef(false);
 
   const swing = (key: string, amp: number, ms: number) => {
     const el = refs.current[key];
@@ -45,27 +43,38 @@ export function CribObjects({ count, onGo }: { count: number; onGo: (href: strin
             type="button"
             className="obj"
             data-sfx="off"
-            aria-label={it.label}
+            aria-label={`${it.label}${it.soon ? ' (coming soon)' : ''}`}
             onPointerEnter={(e) => {
+              // tiny wiggle only: a big swing on hover slid the button out from under the cursor,
+              // so the first click often missed
               if (e.pointerType === 'mouse') {
-                swing(it.key, 9, 900);
+                swing(it.key, 2, 500);
                 play('hover');
               }
             }}
-            onClick={() => {
+            onPointerDown={(e) => {
+              // commit on press (not release), so the sway can't move the target mid-click
+              if (e.button !== 0) return;
+              if (going.current) return;
+              going.current = true;
               play('tap');
               swing(it.key, 14, 380);
-              if (it.key === 'about') {
-                window.setTimeout(() => openAbout(), 300);
-              } else if (it.href) {
-                window.setTimeout(() => onGo(it.href!), 380);
+              window.setTimeout(() => {
+                going.current = false;
+                onGo(it.href);
+              }, 380);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onGo(it.href);
               }
             }}
           >
             {it.key === 'story' && <StoryBook />}
-            {it.key === 'wishes' && <StarJar count={count} />}
             {it.key === 'projects' && <ToyBlocks />}
-            {it.key === 'about' && <AboutBadge />}
+            {it.key === 'wishes' && <StarJar count={count} />}
+            {it.soon && <span className="soon">soon</span>}
             <span className="tag">
               {it.label}
               {it.key === 'wishes' && (

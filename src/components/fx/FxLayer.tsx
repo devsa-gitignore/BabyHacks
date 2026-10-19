@@ -25,19 +25,17 @@ export function FxLayer({ children }: { children: ReactNode }) {
     >
       {children}
       {device === 'laptop' && !reduce && (
-        <div className="pointer-events-none fixed inset-0 z-[2]" aria-hidden="true">
+        <div className="pointer-events-none fixed inset-0 z-[55]" aria-hidden="true">
           <PixelTrail
             shape="diamond"
             color="#ffe27a"
             gooeyFilter={false}
             decay="shrink"
-            maxAge={240}
-            gridSize={96}
-            trailSize={0.032}
-            sparkle={0.25}
-            glow={0.15}
+            maxAge={700}
+            gridSize={56}
+            sparkle={0.3}
+            glow={0.5}
             clickBurst
-            stopOverComponents
           />
         </div>
       )}

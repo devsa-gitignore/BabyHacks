@@ -1,0 +1,60 @@
+/* ============ Landing: lights out ============ */
+.dark { --x: 50vw; --y: 70vh; position: fixed; inset: 0; z-index: 65; pointer-events: none; transition: opacity 1000ms ease; }
+.dark > * { pointer-events: auto; }
+.shade {
+  position: absolute; inset: 0; pointer-events: none !important; background: #07060f;
+  -webkit-mask-image: radial-gradient(circle 170px at var(--x) var(--y), transparent 0, rgba(0, 0, 0, 0.35) 55%, #000 100%);
+  mask-image: radial-gradient(circle 170px at var(--x) var(--y), transparent 0, rgba(0, 0, 0, 0.35) 55%, #000 100%);
+}
+.dark[data-lit] { opacity: 0; }
+.dark[data-lit] > * { pointer-events: none; }
+.eyes, .hint { pointer-events: none !important; }
+
+/* two eyes in the dark: they watch the flashlight */
+.eyes { --px: 0px; --py: 0px; position: absolute; left: 50%; top: 42%; display: flex; gap: 46px; transform: translate(-50%, -50%); }
+.eyes span { position: relative; width: 58px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 50% 45%, #e4ff9a, #b8f23a 55%, #6aa012); box-shadow: 0 0 24px 6px rgba(184, 242, 58, 0.45); transform: scaleY(0); transition: transform 380ms var(--ease-soft); overflow: hidden; }
+.eyes span::after { content: ''; position: absolute; left: 50%; top: 50%; width: 18px; height: 44px; margin: -22px 0 0 -9px; border-radius: 50%; background: #07060f; transform: translate(var(--px), var(--py)); }
+.eyes span::before { content: ''; position: absolute; z-index: 1; left: 14px; top: 12px; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+.eyes[data-open] span { transform: scaleY(1); animation: darkBlink 5s 1.5s infinite; }
+.eyes[data-squint] span { transform: scaleY(0.25); animation: none; }
+
+.hint { position: absolute; left: 50%; bottom: 14%; margin: 0; transform: translateX(-50%); width: min(90vw, 30rem); text-align: center; font-family: var(--font-note); font-size: var(--fs-lead); color: #fff8ec; opacity: 0.85; }
+
+/* the pull cord (it sits outside the mask's dark so it is always findable) */
+.cord { position: absolute; top: 0; left: 78%; display: flex; flex-direction: column; align-items: center; width: 56px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; }
+.cord:active { cursor: grabbing; }
+.cordString { width: 3px; height: 34vh; background: linear-gradient(#fff8ec55, #fff8ecaa); }
+.cordBead { width: 30px; height: 38px; border-radius: 50% 50% 46% 46%; background: radial-gradient(circle at 40% 35%, #fff6b8, #ffd34d); box-shadow: 0 0 18px 4px rgba(255, 226, 122, 0.6); animation: beadSwing 3s ease-in-out infinite; transform-origin: 50% -34vh; }
+.skip { position: absolute; left: 16px; bottom: 16px; min-height: 44px; padding: 0 1rem; border: 2px solid rgba(255, 248, 236, 0.35); border-radius: 999px; background: none; color: #fff8ec; font-family: var(--font-display); font-size: var(--fs-sm); opacity: 0.75; }
+.skip:hover { opacity: 1; }
+
+/* fairy lights */
+.bulbs { position: fixed; z-index: 6; left: 0; right: 0; top: 0; height: 50px; pointer-events: none; }
+.bulbs::before { content: ''; position: absolute; left: -2%; right: -2%; top: 12px; height: 26px; border-bottom: 2px solid rgba(42, 36, 64, 0.5); border-radius: 0 0 50% 50% / 0 0 100% 100%; }
+.bulbs span { position: absolute; width: 12px; height: 16px; border-radius: 50% 50% 45% 45%; background: #6f6a80; transition: background 300ms ease var(--d), box-shadow 300ms ease var(--d); }
+.bulbs span:nth-child(1) { left: 3%; } .bulbs span:nth-child(2) { left: 9%; } .bulbs span:nth-child(3) { left: 15%; } .bulbs span:nth-child(4) { left: 21%; }
+.bulbs span:nth-child(5) { left: 27%; } .bulbs span:nth-child(6) { left: 33%; } .bulbs span:nth-child(7) { left: 39%; } .bulbs span:nth-child(8) { left: 45%; }
+.bulbs span:nth-child(9) { left: 51%; } .bulbs span:nth-child(10) { left: 57%; } .bulbs span:nth-child(11) { left: 63%; } .bulbs span:nth-child(12) { left: 69%; }
+.bulbs span:nth-child(13) { left: 75%; } .bulbs span:nth-child(14) { left: 81%; } .bulbs span:nth-child(15) { left: 87%; } .bulbs span:nth-child(16) { left: 93%; }
+.bulbs[data-lit] span { background: var(--c); box-shadow: 0 0 14px 4px color-mix(in srgb, var(--c) 70%, transparent); animation: bulbGlow 3.4s ease-in-out infinite; animation-delay: var(--d); }
+
+/* retro bits */
+.retro { position: fixed; z-index: 7; right: 16px; top: 96px; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+.counter { display: flex; align-items: center; gap: 0.5rem; margin: 0; padding: 0.3rem 0.8rem; border-radius: 10px; background: #120f26; color: #b8f23a; font-family: 'VT323', monospace; font-size: 1.25rem; box-shadow: var(--puffy); }
+.counterNum { padding: 0 0.4rem; border-radius: 4px; background: #000; color: #b8f23a; font-size: 1.5rem; letter-spacing: 0.1em; }
+.guestbook { padding: 0.3rem 0.9rem; border-radius: 999px; background: var(--sticker-pink); color: var(--ink); text-decoration: none; font-size: var(--fs-sm); box-shadow: var(--puffy); rotate: -3deg; }
+.cozy { margin: 0; padding: 0.2rem 0.7rem; border: 2px dashed var(--ink); border-radius: 6px; background: var(--butter); color: var(--ink); font-size: var(--fs-xs); animation: blinkSign 2.4s steps(1) infinite; }
+@media (max-width: 767px) {
+  .retro { left: 10px; right: auto; top: 76px; bottom: auto; align-items: flex-start; transform: scale(0.85); transform-origin: 0 0; }
+  .cozy { display: none; }
+  .cord { left: 82%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cordBead, .bulbs[data-lit] span, .cozy, .eyes[data-open] span { animation: none !important; }
+}
+
+@keyframes darkBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+@keyframes beadSwing { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; } }
+@keyframes bulbGlow { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+@keyframes blinkSign { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }

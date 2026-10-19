@@ -5,7 +5,8 @@ import PixelSnow from '@/components/react-bits/PixelSnow';
 import { useDevice, useReducedMotion } from '@/hooks/useDevice';
 import { useTheme } from '@/theme/ThemeProvider';
 
-export function SnowBg({ paused = false }: { paused?: boolean }) {
+// glow: draw only the flakes (no light-mode wash), for pages that keep their own sky visible.
+export function SnowBg({ paused = false, glow = false }: { paused?: boolean; glow?: boolean }) {
   const { theme } = useTheme();
   const device = useDevice();
   const reduce = useReducedMotion();
@@ -14,16 +15,15 @@ export function SnowBg({ paused = false }: { paused?: boolean }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
       <PixelSnow
-        key={theme}
         variant="square"
-        lightMode={!night}
-        color={night ? '#ffe485' : '#ffffff'}
+        lightMode={!night && !glow}
+        color={night ? '#ffe27a' : '#ffffff'}
         density={device === 'touch' ? 0.35 : 0.5}
-        speed={night ? 0.45 : 0.6}
+        speed={0.6}
         flakeSize={1.2}
         pixelSize={device === 'touch' ? 4 : 5}
         mouseInteraction
-        intro={false}
+        intro={!reduce}
         paused={paused || reduce}
       />
     </div>

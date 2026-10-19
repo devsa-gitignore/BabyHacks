@@ -1,216 +1,149 @@
 'use client';
 
-import { useState } from 'react';
-import { ElasticHeading } from '@/components/fx/ElasticHeading';
+// Projects slot (/projects), plan P5. Four project cards on one calm page. Tap a card to open it in place.
+// A dream route draws across the top as you scroll. #puppets #table #forts #report deep-link to a card.
+import { useEffect, useState, type KeyboardEvent } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useAudio } from '@/audio';
-import { useTheme } from '@/theme/ThemeProvider';
+import { startLullaby } from '@/audio/musicbox';
 import { IconSlot } from '@/components/IconSlot';
-import { PixelStar, PixelHeart } from '@/components/void/Pixel';
+import { useReducedMotion } from '@/hooks/useDevice';
+import { Kitten } from '../_kit/Kitten';
+import BlanketFortBlueprints from './BlanketFortBlueprints';
+import KnockItOffTable from './KnockItOffTable';
+import ShadowPuppetTheater from './ShadowPuppetTheater';
+import VoidReport from './VoidReport';
+import css from './projects.module.css';
 
-type Project = {
-  id: string;
-  title: string;
-  tagline: string;
-  description: string;
-  tags: string[];
-  status: 'operational' | 'experimenting' | 'patented';
-  icon: 'nav-wishes' | 'nav-home' | 'nav-story' | 'nav-about';
-  actionLabel: string;
-  sound: 'boing' | 'mrrp' | 'tap' | 'chime';
-};
-
-const PROJECTS: Project[] = [
-  {
-    id: 'wish-catcher',
-    title: 'Wish Catcher 3000',
-    tagline: 'Starlight whisper capture apparatus',
-    description:
-      'A spun-glass vacuum jar with starry gold trim. Catches whispers drifting through open night windows and converts them into permanent stars.',
-    tags: ['Starlight', 'Glasswork', 'Celestial'],
-    status: 'operational',
-    icon: 'nav-wishes',
-    actionLabel: 'Catch a Wish',
-    sound: 'chime',
-  },
-  {
-    id: 'butterfly-tracker',
-    title: 'Butterfly Pounce Engine',
-    tagline: 'High-speed cuteness trajectory matrix',
-    description:
-      'Calculates the optimal leap angle toward fluttering pixel butterflies, specifically tuned to achieve a 98% adorable near-miss rate.',
-    tags: ['Physics', 'Reflexes', 'Pounce'],
-    status: 'experimenting',
-    icon: 'nav-home',
-    actionLabel: 'Test Leap',
-    sound: 'boing',
-  },
-  {
-    id: 'purr-tuner',
-    title: 'Purr Frequency Lab',
-    tagline: 'Acoustic healing resonance (25-50 Hz)',
-    description:
-      'Harmonic acoustic chamber that measures the soothing frequencies produced when Void is held gently. Instant remedy for night-time anxiety.',
-    tags: ['Acoustics', 'Comfort', 'Zen'],
-    status: 'patented',
-    icon: 'nav-about',
-    actionLabel: 'Calibrate Purr',
-    sound: 'mrrp',
-  },
-  {
-    id: 'constellation-loom',
-    title: 'Constellation Loom',
-    tagline: 'Automated sky tapestry weaver',
-    description:
-      'Connects every wish on the wall into celestial constellations visible from any bedtime window across the globe.',
-    tags: ['Astronomy', 'Weaving', 'Sky'],
-    status: 'operational',
-    icon: 'nav-story',
-    actionLabel: 'Map Sky',
-    sound: 'tap',
-  },
-];
+const PROJECTS = [
+  { id: 'puppets', title: 'Shadow Puppet Theater', line: 'A little theater behind the wall. Pick a puppet and see what it does.', icon: 'icon-star', Panel: ShadowPuppetTheater },
+  { id: 'table', title: 'Knock-It-Off Table', line: 'Six objects. One very serious experiment about gravity.', icon: 'icon-cloud', Panel: KnockItOffTable },
+  { id: 'forts', title: 'Blanket Fort Architecture', line: 'Four forts, carefully engineered. Tap a blueprint to flip it.', icon: 'icon-heart', Panel: BlanketFortBlueprints },
+  { id: 'report', title: 'The Void Report', line: 'A study of why cats stare at walls. Funded by snacks.', icon: 'icon-sparkle', Panel: VoidReport },
+] as const;
+type Id = (typeof PROJECTS)[number]['id'];
 
 export default function ProjectsSlot() {
-  const { play } = useAudio();
-  const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [sparkleId, setSparkleId] = useState<string | null>(null);
+  const reduce = useReducedMotion();
+  const { muted } = useAudio();
+  const [open, setOpen] = useState<Id | null>(null);
+  const [scrolled, setScrolled] = useState(0);
+  const [humming, setHumming] = useState(false);
 
-  const filters = ['all', 'operational', 'experimenting', 'patented'];
+  // deep link: /projects#forts
+  useEffect(() => {
+    const h = window.location.hash.slice(1);
+    if (PROJECTS.some((p) => p.id === h)) setOpen(h as Id);
+  }, []);
 
-  const filtered = activeFilter === 'all'
-    ? PROJECTS
-    : PROJECTS.filter((p) => p.status === activeFilter);
+  // dream route: progress is how far down the page the visitor has scrolled
+  useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setScrolled(max > 0 ? Math.min(1, window.scrollY / max) : 0);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  const handleAction = (p: Project) => {
-    play(p.sound);
-    setSparkleId(p.id);
-    setTimeout(() => setSparkleId(null), 900);
+  // the lullaby stops when muted, when the visitor leaves, or when tapped again
+  useEffect(() => {
+    if (!humming) return;
+    const stop = startLullaby();
+    return () => stop();
+  }, [humming]);
+  useEffect(() => {
+    if (muted) setHumming(false);
+  }, [muted]);
+
+  const choose = (id: Id | null) => {
+    setOpen(id);
+    try {
+      window.history.replaceState(null, '', id ? `#${id}` : window.location.pathname);
+    } catch {}
+    if (id) window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   };
 
-  const { theme } = useTheme();
-  const night = theme === 'night';
+  // arrow keys move between cards
+  const onGridKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const keys = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'];
+    if (!keys.includes(e.key)) return;
+    const items = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('[data-card]'));
+    const i = items.indexOf(document.activeElement as HTMLButtonElement);
+    if (i < 0) return;
+    e.preventDefault();
+    const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1;
+    items[(i + step + items.length) % items.length].focus();
+  };
+
+  const route = reduce ? 1 : scrolled;
 
   return (
-    <section id="projects-slot" data-slot="projects" className="min-h-[60dvh] pb-12">
-      {/* Main Elastic Heading */}
-      <div style={{ width: '100%', height: '240px', position: 'relative' }} className="mb-4">
-        <ElasticHeading
-          text="Projects"
-          material={night ? 'jelly' : 'balloon'}
-          color={night ? '#9e8eff' : '#3b5bff'}
-          inflate={1}
-          stiffness={0.5}
-          wobble={0.6}
-          theme={night ? 'dark' : 'light'}
-          height="100%"
-        />
-      </div>
+    <section id="projects-slot" data-slot="projects" className={css.slot}>
+      <header className={css.head}>
+        <h1 className="h-display on-sky m-0" style={{ fontSize: "var(--fs-h1)" }}>Void&apos;s Projects</h1>
+        <p className="font-note on-sky m-0">Four very serious experiments.</p>
+        <button type="button" className="btn-quiet" aria-pressed={humming} disabled={muted} title={muted ? 'sound is off' : undefined} onClick={() => setHumming((h) => !h)}>
+          <span aria-hidden="true">{humming ? '■' : '♪'}</span>
+          {humming ? 'Stop the lullaby' : 'Hum a lullaby'}
+        </button>
+      </header>
 
-      {/* Intro Note */}
-      <div className="paper relative mx-auto mb-10 max-w-2xl px-6 py-4 text-center">
-        <span className="tape" aria-hidden="true" />
-        <p className="font-note m-0 text-[1.8rem] text-[var(--ink)]">
-          &ldquo;things Void engineered by the window while everyone was sound asleep.&rdquo;
-        </p>
-      </div>
+      {!open && (
+        <div className={css.route} aria-hidden="true">
+          <svg viewBox="0 0 1000 90" preserveAspectRatio="none" className={css.routeSvg}>
+            <path
+              d="M0 46 C 140 6, 240 84, 380 44 S 640 4, 780 44 S 930 76, 1000 40"
+              pathLength={1}
+              style={{ strokeDasharray: 1, strokeDashoffset: 1 - route }}
+            />
+          </svg>
+          <span className={css.routeVoid} style={{ left: `${route * 94}%` }}>
+            <svg viewBox="-20 -10 240 280" width="54" height="64">
+              <Kitten eyes="normal" look={{ x: 0.4, y: 0.6 }} />
+            </svg>
+          </span>
+        </div>
+      )}
 
-      {/* Status Filter Badges */}
-      <div className="mb-8 flex flex-wrap justify-center gap-3">
-        {filters.map((f) => (
-          <button
-            key={f}
-            type="button"
-            className={`px-btn transition-transform active:scale-95 ${
-              activeFilter === f ? '!bg-[var(--eye)] font-bold text-[var(--ink)]' : ''
-            }`}
-            onClick={() => {
-              play('tap');
-              setActiveFilter(f);
-            }}
+      <AnimatePresence mode="wait" initial={false}>
+        {open ? (
+          <motion.article
+            key={open}
+            className={`soft ${css.expanded}`}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduce ? 0.15 : 0.42, ease: [0.22, 0.61, 0.36, 1] }}
+            id={`panel-${open}`}
           >
-            <span>{f.charAt(0).toUpperCase() + f.slice(1)}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Projects Grid */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        {filtered.map((project) => {
-          const isSparkling = sparkleId === project.id;
-          return (
-            <article
-              key={project.id}
-              className="paper relative flex flex-col justify-between overflow-hidden p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <span className="tape" aria-hidden="true" />
-
-              <div>
-                <header className="mb-3 flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-block rounded-xl border-2 border-[var(--ink)] bg-[var(--cloud)] p-2">
-                      <IconSlot name={project.icon} size={32} />
-                    </span>
-                    <div>
-                      <h2 className="h-display m-0 text-[1.9rem] leading-none text-[var(--ink)]">
-                        {project.title}
-                      </h2>
-                      <span className="font-note text-[1.4rem] opacity-75">
-                        {project.tagline}
-                      </span>
-                    </div>
-                  </div>
-
-                  <span
-                    className={`rounded-full border-2 border-[var(--ink)] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
-                      project.status === 'operational'
-                        ? 'bg-[var(--eye)] text-[var(--ink)]'
-                        : project.status === 'experimenting'
-                        ? 'bg-[var(--butter)] text-[var(--ink)]'
-                        : 'bg-[var(--berry)] text-white'
-                    }`}
-                  >
-                    {project.status}
-                  </span>
-                </header>
-
-                <p className="mb-5 text-[1.15rem] leading-relaxed opacity-90">
-                  {project.description}
-                </p>
-              </div>
-
-              <div>
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded border border-[var(--ink)] bg-white/60 px-2 py-0.5 text-xs font-semibold text-[var(--ink)]"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <button
-                    type="button"
-                    className="px-btn text-base"
-                    onClick={() => handleAction(project)}
-                  >
-                    <span>{project.actionLabel}</span>
-                  </button>
-
-                  {isSparkling && (
-                    <div className="flex animate-bounce items-center gap-1 text-[var(--berry)]">
-                      <PixelHeart px={3} />
-                      <PixelStar px={3} />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+            <div className={css.expandedBar}>
+              <h2 className={css.expandedTitle}>{PROJECTS.find((p) => p.id === open)!.title}</h2>
+              <button type="button" className="btn-quiet" onClick={() => choose(null)}>
+                <span aria-hidden="true">←</span> Back to the wall
+              </button>
+            </div>
+            {(() => {
+              const Active = PROJECTS.find((p) => p.id === open)!.Panel;
+              return <Active />;
+            })()}
+          </motion.article>
+        ) : (
+          <motion.div key="grid" className={css.grid} onKeyDown={onGridKey} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            {PROJECTS.map((p) => (
+              <button key={p.id} type="button" data-card className={`soft ${css.card}`} aria-expanded={false} aria-controls={`panel-${p.id}`} onClick={() => choose(p.id)}>
+                <span className={css.cardIcon} aria-hidden="true">
+                  <IconSlot name={p.icon} size={72} />
+                </span>
+                <span className={css.cardTitle}>{p.title}</span>
+                <span className={css.cardLine}>{p.line}</span>
+                <span className="btn sm">Open</span>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

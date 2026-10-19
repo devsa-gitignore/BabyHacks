@@ -6,7 +6,7 @@ export const TAGLINE = 'I catch the wishes you whisper at night.';
 
 // Flags for features that are intentionally NOT built yet.
 export const FEATURES = {
-  easter: false, // set true once src/features/easter/index.tsx is filled in
+  easter: true, // hidden "hush" egg, see src/features/easter/index.tsx
 } as const;
 
 export const NAV_ITEMS = [
@@ -19,7 +19,7 @@ export const NAV_ITEMS = [
 // Character sheet (Track 2 requires these five fields; keep each under 60 words).
 export const CHARACTER_SHEET = {
   name: CAT_NAME,
-  what: 'A baby black kitten with enormous green eyes and a tiny golden star charm. Curious, a little shy, easily startled by butterflies, and purrs the instant someone is kind to her.',
+  what: 'A baby black kitten with enormous green eyes and a tiny golden star charm. Curious, a little shy, easily startled by butterflies, and purrs the instant someone is kind to him.',
   does: 'Wish Keeper of the Window. Void stays up all night by the glass, catches the wishes you whisper, and hangs each one in the sky as a star.',
   story: 'Void was born on the night a wish had nowhere to land. (The full story is coming soon.)',
   tagline: TAGLINE,

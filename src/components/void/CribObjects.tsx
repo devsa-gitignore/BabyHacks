@@ -62,32 +62,3 @@ export function StarJar({ count = 0 }: { count?: number }) {
     </svg>
   );
 }
-
-export function AboutBadge() {
-  return (
-    <svg viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true" focusable="false">
-      <g className="about-badge">
-        {/* Ribbon banner */}
-        <path d="M46 16L34 46L60 38L86 46L74 16Z" fill="#ff6f91" {...O} />
-        {/* Rosette Medal */}
-        <circle cx="60" cy="68" r="38" fill="#ffe27a" {...O} />
-        <circle cx="60" cy="68" r="30" fill="#fff8ec" {...O} strokeDasharray="4 4" />
-        {/* Kitten head silhouette */}
-        <path d="M44 76C44 63 51 53 60 53C69 53 76 63 76 76Z" fill="#0d0b1a" {...O} strokeWidth="2.5" />
-        {/* Ears */}
-        <path d="M46 58L42 46L53 53Z" fill="#0d0b1a" {...O} strokeWidth="2" />
-        <path d="M74 58L78 46L67 53Z" fill="#0d0b1a" {...O} strokeWidth="2" />
-        {/* Eyes (lime green) */}
-        <circle cx="53" cy="63" r="3.5" fill="#b8f23a" />
-        <circle cx="67" cy="63" r="3.5" fill="#b8f23a" />
-        {/* Star charm */}
-        <path
-          d="M60 76l1.8 3.6 3.9.6-2.8 2.7.7 3.9-3.6-1.9-3.6 1.9.7-3.9-2.8-2.7 3.9-.6Z"
-          fill="#ffe27a"
-          stroke="#0d0b1a"
-          strokeWidth="1.2"
-        />
-      </g>
-    </svg>
-  );
-}

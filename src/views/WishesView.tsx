@@ -7,8 +7,6 @@ import { useAudio } from '@/audio';
 import { IconSlot } from '@/components/IconSlot';
 import { Odometer } from '@/components/Odometer';
 import { SnowBg } from '@/components/fx/SnowBg';
-import { ElasticHeading } from '@/components/fx/ElasticHeading';
-import { useTheme } from '@/theme/ThemeProvider';
 import { PixelStar } from '@/components/void/Pixel';
 import { VoidHero, type VoidHandle } from '@/components/void/VoidHero';
 import { WISH_COLORS, WISH_COOLDOWN_MS, WISH_ICONS, WISH_MAX, WISH_PAGE_SIZE } from '@/config';
@@ -63,8 +61,6 @@ function WishCard({ w, fresh, drag }: { w: Card; fresh: boolean; drag: boolean }
 
 export function WishesView() {
   const { play } = useAudio();
-  const { theme } = useTheme();
-  const night = theme === 'night';
   const device = useDevice();
   const reduce = useReducedMotion();
   const voidRef = useRef<VoidHandle>(null);
@@ -256,33 +252,22 @@ export function WishesView() {
     <>
       <SnowBg />
       <main className="page">
-        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative h-[160px] sm:h-[190px] md:h-[220px] w-full sm:w-[360px] md:w-[420px] max-w-full">
-            <ElasticHeading
-              text="Wishes"
-              material={night ? 'jelly' : 'balloon'}
-              color={night ? '#9e8eff' : '#3b5bff'}
-              inflate={1}
-              stiffness={0.5}
-              wobble={0.6}
-              theme={night ? 'dark' : 'light'}
-              height="100%"
-            />
-          </div>
-          <div ref={jarRef} className="paper flex shrink-0 self-end sm:self-center items-center gap-3 px-4 py-2 text-[1.7rem]" aria-label={`${total ?? 0} wishes caught`}>
-            <IconSlot name="nav-wishes" size={34} />
+        <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <h1 className="h-display m-0 text-[clamp(3.4rem,10vw,5.5rem)] text-[var(--paper)] [text-shadow:4px_4px_0_var(--ink)]">Wishes</h1>
+          <div ref={jarRef} className="paper flex items-center gap-3 px-4 py-2 text-[1.7rem]" aria-label={`${total ?? 0} wishes caught`}>
+            <IconSlot name="icon-heart" size={40} />
             {total === null ? <span>…</span> : <Odometer value={total} />}
             <span>caught</span>
           </div>
         </header>
 
-        <section className="wish-composer paper relative mb-12 grid gap-6 px-5 pb-6 pt-8 md:grid-cols-[1.1fr_1fr] md:px-8" aria-label="Make a wish">
+        <section className="paper relative mb-12 grid gap-6 px-5 pb-6 pt-8 md:grid-cols-[1.1fr_1fr] md:px-8" aria-label="Make a wish">
           <span className="tape" aria-hidden="true" />
           <div>
-            <p className="wish-kicker">a little note for the night sky</p>
-            <label htmlFor="wish" className="font-note block text-[2.25rem]">What are you wishing for?</label>
-            <p className="wish-help">Keep it small, big, or somewhere in between. Void is listening.</p>
-            <div className="wish-input-shell rounded border-[3px] border-dashed border-[var(--ink)] p-3">
+            <label htmlFor="wish" className="font-note block text-[1.9rem]">
+              whisper it to Void
+            </label>
+            <div className="rounded-2xl border-[3px] border-dashed border-[rgba(13,11,26,0.25)] bg-white/40 p-3">
               <textarea
                 id="wish"
                 className="note-input"
@@ -301,33 +286,30 @@ export function WishesView() {
                   }
                 }}
               />
-              <div className="wish-counter" aria-live="polite">
-                <span>{charsLeft} characters left</span><span>up to {WISH_MAX}</span>
+              <div className="text-right text-base opacity-70" aria-live="polite">
+                {charsLeft} left
               </div>
             </div>
 
-            <div className="wish-choice-label mt-4">Choose your paper</div>
-            <div className="mt-2 flex flex-wrap items-center gap-3" role="radiogroup" aria-label="Paper color">
-              {WISH_COLORS.map((c, i) => (
+            <div className="mt-4 flex flex-wrap items-center gap-3" role="radiogroup" aria-label="Paper color">
+              {WISH_COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   role="radio"
                   aria-checked={color === c}
-                  aria-label={`${c} paper`}
+                  aria-label={c}
                   className="swatch"
                   style={{ ['--c' as string]: `var(--sticker-${c})` }}
                   disabled={!writing}
                   onClick={() => {
                     setColor(c);
                     play('tap');
-                    void i;
                   }}
                 />
               ))}
             </div>
-            <div className="wish-choice-label mt-4">Add a little symbol</div>
-            <div className="mt-2 flex flex-wrap gap-3" role="radiogroup" aria-label="Wish symbol">
+            <div className="mt-4 flex flex-wrap gap-3" role="radiogroup" aria-label="Icon">
               {WISH_ICONS.map((ic) => (
                 <button key={ic} type="button" role="radio" aria-checked={icon === ic} aria-label={ic} className="pick" disabled={!writing} onClick={() => setIcon(ic)}>
                   <IconSlot name={`icon-${ic}`} size={34} />
@@ -352,12 +334,11 @@ export function WishesView() {
             <div ref={stageRef} className="stage w-full max-w-[340px]" style={{ willChange: 'transform' }}>
               {phase === 'write' || !noteSrc ? (
                 <div
-                  className="mx-auto grid h-[300px] w-[300px] place-items-center rounded border-[3px] border-[var(--ink)] p-5 text-center font-note text-[2.1rem] [box-shadow:4px_5px_0_var(--ink)]"
+                  className="mx-auto grid h-[300px] w-[300px] place-items-center rounded-3xl border-[3px] border-transparent p-5 text-center font-note text-[2.1rem] [box-shadow:var(--puffy)]"
                   style={{ background: `var(--sticker-${color})`, transform: 'rotate(-2deg)' }}
                   aria-hidden="true"
                 >
-                  <span className="wish-preview-icon"><IconSlot name={`icon-${icon}`} size={30} /></span>
-                  <span className="break-words">{text || 'your wish goes here…'}</span>
+                  <span className="break-words">{text || 'your wish shows up here'}</span>
                 </div>
               ) : (
                 <PaperCrumple
@@ -394,7 +375,7 @@ export function WishesView() {
           {loading && wishes.length === 0 ? (
             <p className="font-note text-[2rem]">looking at the sky…</p>
           ) : wishes.length === 0 ? (
-            <p className="paper font-note inline-block px-4 py-2 text-[2rem]">no wishes yet. be the first star.</p>
+            <div className="soft font-note inline-flex items-center gap-3 px-5 py-3 text-[var(--fs-lead)]" role="status"><IconSlot name="icon-star" size={48} />no wishes yet. be the first star.</div>
           ) : (
             <div className="wall">
               {wishes.map((w) => (

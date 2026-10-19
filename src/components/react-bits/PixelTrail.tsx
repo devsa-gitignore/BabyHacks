@@ -26,7 +26,6 @@ export interface PixelTrailProps {
   dpr?: number;
   className?: string;
   style?: CSSProperties;
-  stopOverComponents?: boolean;
 }
 
 interface Settings {
@@ -48,7 +47,6 @@ interface Settings {
   shine: number;
   glow: number;
   dpr?: number;
-  stopOverComponents: boolean;
 }
 
 interface TrailPoint {
@@ -316,8 +314,7 @@ export default function PixelTrail({
   imageSrc,
   dpr,
   className = '',
-  style,
-  stopOverComponents = false
+  style
 }: PixelTrailProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -342,8 +339,7 @@ export default function PixelTrail({
     clickBurst,
     shine: Math.min(Math.max(shine, 0), 1),
     glow: Math.min(Math.max(glow, 0), 1),
-    dpr,
-    stopOverComponents: Boolean(stopOverComponents)
+    dpr
   };
 
   useEffect(() => {
@@ -663,26 +659,7 @@ export default function PixelTrail({
       };
     };
 
-    const isOverComponent = (event: PointerEvent): boolean => {
-      if (!settingsRef.current.stopOverComponents) return false;
-      const el =
-        (event.target as Element | null) ??
-        (typeof document !== 'undefined' ? document.elementFromPoint(event.clientX, event.clientY) : null);
-      if (!el) return false;
-      return Boolean(
-        el.closest(
-          'button, a, input, textarea, select, dialog, [role="button"], [role="dialog"], .paper, .nav-strip, .dock, .toggles, .void3d, .crib, .obj, .landing-cat, .landing-word, [data-slot], article, .wish-card, .about-dialog, header, footer, [data-no-trail]'
-        )
-      );
-    };
-
     const onMove = (event: PointerEvent) => {
-      if (isOverComponent(event)) {
-        state.pointer.inside = false;
-        state.pointer.vx = 0;
-        state.pointer.vy = 0;
-        return;
-      }
       const { x, y, inside } = toUv(event);
       const pointer = state.pointer;
       const now = performance.now();
@@ -706,7 +683,6 @@ export default function PixelTrail({
     };
 
     const onDown = (event: PointerEvent) => {
-      if (isOverComponent(event)) return;
       const { x, y, inside } = toUv(event);
       if (!inside || !settingsRef.current.clickBurst) return;
       burst(x, y);
