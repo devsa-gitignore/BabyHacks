@@ -38,7 +38,9 @@ export function ThemeToggle() {
       aria-label={night ? 'Night mode on. Switch to day' : 'Day mode on. Switch to night'}
       title={night ? 'Switch to day' : 'Switch to night'}
     >
-      {night ? <MoonIcon /> : <SunIcon />}
+      <span className="spin-on-press flex items-center justify-center">
+        {night ? <MoonIcon /> : <SunIcon />}
+      </span>
     </button>
   );
 }

@@ -19,7 +19,7 @@ export const viewport: Viewport = {
 };
 
 // Runs before first paint so there is no day/night flash. First visit follows the OS setting.
-const THEME_BOOT = `try{var t=localStorage.getItem('wk.theme');if(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches){t='night'}if(t==='night'){document.documentElement.dataset.theme='night'}}catch(e){}`;
+const THEME_BOOT = `try{var t=localStorage.getItem('wk.theme');if(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches){t='night'}if(t==='night'){document.documentElement.setAttribute('data-theme','night');document.documentElement.classList.add('dark','night');}else{document.documentElement.setAttribute('data-theme','day');document.documentElement.classList.remove('dark','night');}}catch(e){}`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

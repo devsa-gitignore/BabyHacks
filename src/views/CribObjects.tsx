@@ -2,18 +2,21 @@
 
 import { useRef } from 'react';
 import { useAudio } from '@/audio';
+import { useAbout } from '@/components/AboutDialog';
 import { Odometer } from '@/components/Odometer';
-import { StarJar, StoryBook, ToyBlocks } from '@/components/void/CribObjects';
+import { AboutBadge, StarJar, StoryBook, ToyBlocks } from '@/components/void/CribObjects';
 
-type Item = { key: string; label: string; href: string; soon?: boolean; left: string; len: number; dur: number; delay: number };
+type Item = { key: string; label: string; href?: string; left: string; len: number; dur: number; delay: number };
 const ITEMS: Item[] = [
-  { key: 'story', label: 'Story', href: '/story', soon: true, left: '17%', len: 150, dur: 4.2, delay: -1 },
-  { key: 'wishes', label: 'Wishes', href: '/wishes', left: '50%', len: 70, dur: 5.1, delay: -2.4 },
-  { key: 'projects', label: 'Projects', href: '/projects', soon: true, left: '83%', len: 110, dur: 4.7, delay: -0.3 },
+  { key: 'story', label: 'Story', href: '/story', left: '14%', len: 110, dur: 4.2, delay: -1 },
+  { key: 'wishes', label: 'Wishes', href: '/wishes', left: '38%', len: 68, dur: 5.1, delay: -2.4 },
+  { key: 'projects', label: 'Projects', href: '/projects', left: '62%', len: 104, dur: 4.6, delay: -0.8 },
+  { key: 'about', label: 'About', left: '86%', len: 82, dur: 4.9, delay: -1.7 },
 ];
 
 export function CribObjects({ count, onGo }: { count: number; onGo: (href: string) => void }) {
   const { play } = useAudio();
+  const { open: openAbout } = useAbout();
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const swing = (key: string, amp: number, ms: number) => {
@@ -42,7 +45,7 @@ export function CribObjects({ count, onGo }: { count: number; onGo: (href: strin
             type="button"
             className="obj"
             data-sfx="off"
-            aria-label={`${it.label}${it.soon ? ' (coming soon)' : ''}`}
+            aria-label={it.label}
             onPointerEnter={(e) => {
               if (e.pointerType === 'mouse') {
                 swing(it.key, 9, 900);
@@ -52,13 +55,17 @@ export function CribObjects({ count, onGo }: { count: number; onGo: (href: strin
             onClick={() => {
               play('tap');
               swing(it.key, 14, 380);
-              window.setTimeout(() => onGo(it.href), 380);
+              if (it.key === 'about') {
+                window.setTimeout(() => openAbout(), 300);
+              } else if (it.href) {
+                window.setTimeout(() => onGo(it.href!), 380);
+              }
             }}
           >
             {it.key === 'story' && <StoryBook />}
-            {it.key === 'projects' && <ToyBlocks />}
             {it.key === 'wishes' && <StarJar count={count} />}
-            {it.soon && <span className="soon">soon</span>}
+            {it.key === 'projects' && <ToyBlocks />}
+            {it.key === 'about' && <AboutBadge />}
             <span className="tag">
               {it.label}
               {it.key === 'wishes' && (

@@ -14,15 +14,16 @@ export function SnowBg({ paused = false }: { paused?: boolean }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
       <PixelSnow
+        key={theme}
         variant="square"
         lightMode={!night}
-        color={night ? '#ffe27a' : '#ffffff'}
+        color={night ? '#ffe485' : '#ffffff'}
         density={device === 'touch' ? 0.35 : 0.5}
-        speed={0.6}
+        speed={night ? 0.45 : 0.6}
         flakeSize={1.2}
         pixelSize={device === 'touch' ? 4 : 5}
         mouseInteraction
-        intro={!reduce}
+        intro={false}
         paused={paused || reduce}
       />
     </div>

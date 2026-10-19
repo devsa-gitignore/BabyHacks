@@ -372,7 +372,8 @@ export function LandingView() {
           padding: '0 2.4rem',
         }}
       >
-        <span style={{ animation: showCta && !reduce ? 'wiggle-cta 5s 1s infinite' : undefined }}>Come in</span>
+        <span className="landing-cta-title" style={{ animation: showCta && !reduce ? 'wiggle-cta 5s 1s infinite' : undefined }}>Meet Void</span>
+        <span className="landing-cta-hint">explore her world · leave a wish</span>
       </button>
 
       <div

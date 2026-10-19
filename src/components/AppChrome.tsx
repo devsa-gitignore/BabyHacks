@@ -9,13 +9,14 @@ import { Toggles } from './Toggles';
 
 const Easter = dynamic(() => import('@/features/easter'), { ssr: false });
 
-/** Fixed UI on every route: sound + theme toggles always, navbar everywhere except the landing page. */
+/** Fixed UI on every route: sound + theme toggles always, navbar on inner pages (projects, story, wishes). */
 export function AppChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const isHomeOrLanding = pathname === '/' || pathname === '/home';
   return (
     <>
       <Toggles />
-      {pathname !== '/' && <Navbar />}
+      {!isHomeOrLanding && <Navbar />}
       {children}
       {FEATURES.easter && <Easter />}
     </>
