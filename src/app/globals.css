@@ -122,8 +122,8 @@ button { font: inherit; color: inherit; }
 
 /* ---------- navbar: taped paper strip (laptop) + dock (phone) ---------- */
 .nav-strip {
-  position: fixed; z-index: 60; top: 12px; left: 24px; right: 150px; height: 64px;
-  display: none; align-items: center; gap: 0.5rem; padding: 0 1.2rem;
+  position: fixed; z-index: 60; top: 8px; left: 20px; right: 140px; height: 80px;
+  display: none; align-items: center; gap: 0.6rem; padding: 0 1.4rem;
   background: var(--paper); border: 3px solid var(--ink); border-radius: 4px;
   box-shadow: 4px 5px 0 var(--ink); transform: rotate(-0.4deg);
 }

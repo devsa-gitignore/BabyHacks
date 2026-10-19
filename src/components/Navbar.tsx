@@ -29,13 +29,13 @@ export function Navbar() {
         </Link>
         {NAV_ITEMS.map((it) => (
           <Link key={it.key} href={it.href} className="nav-link" aria-current={pathname === it.href ? 'page' : undefined}>
-            <IconSlot name={`nav-${it.key}`} size={28} />
+            <IconSlot name={`nav-${it.key}`} size={36} />
             <span className="nav-label">{it.label}</span>
             <Loop />
           </Link>
         ))}
         <button type="button" className="nav-link" onClick={open}>
-          <IconSlot name="nav-about" size={28} />
+          <IconSlot name="nav-about" size={36} />
           <span className="nav-label">About</span>
         </button>
       </nav>
@@ -45,14 +45,14 @@ export function Navbar() {
         {NAV_ITEMS.map((it) => (
           <Link key={it.key} href={it.href} className="dock-item" aria-current={pathname === it.href ? 'page' : undefined}>
             <span>
-              <IconSlot name={`nav-${it.key}`} size={32} />
+              <IconSlot name={`nav-${it.key}`} size={40} />
             </span>
             <span>{it.label}</span>
           </Link>
         ))}
         <button type="button" className="dock-item" onClick={open}>
           <span>
-            <IconSlot name="nav-about" size={32} />
+            <IconSlot name="nav-about" size={40} />
           </span>
           <span>About</span>
         </button>
